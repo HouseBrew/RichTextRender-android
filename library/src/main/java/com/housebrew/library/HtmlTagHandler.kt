@@ -1,16 +1,20 @@
 package com.housebrew.library
 
 import android.graphics.Typeface
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.text.style.TypefaceSpan
 import org.htmlcleaner.ContentNode
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.TagNode
 import java.util.Stack
 
 object HtmlTagHandler {
+
+    val typeface: Typeface? = null
 
     private const val htmlString: String = "<p>Atlanta's <strike><strong>leaders <br><i>faced</i></strong></strike> an urgent decision that would impact every citizen of their city. An \"extreme weather\" event was bearing down on them, and they needed a plan of action.</p>"
 
@@ -61,9 +65,16 @@ object HtmlTagHandler {
                     val endIndex = builder.length
                     for (attr in attrStack) {
                         when (attr) {
-                            "b", "strong" -> builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                            "i" -> builder.setSpan(StyleSpan(Typeface.ITALIC), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                            "strike" -> builder.setSpan(StrikethroughSpan(), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            "b", "strong" -> builder.setSpanExc(StyleSpan(Typeface.BOLD), startIndex, endIndex)
+                            "i" -> {
+                                builder.setSpanExc(StyleSpan(Typeface.ITALIC), startIndex, endIndex)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                    builder.setSpanExc(TypefaceSpan(Typeface.MONOSPACE), startIndex, endIndex)
+                                } else {
+                                    builder.setSpanExc(TypefaceSpan("monospace"), startIndex, endIndex)
+                                }
+                            }
+                            "strike" -> builder.setSpanExc(StrikethroughSpan(), startIndex, endIndex)
                             "br" -> builder.append("\n")
                         }
                     }
@@ -74,5 +85,9 @@ object HtmlTagHandler {
             }
         }
         attrStack.pop()
+    }
+
+    private fun setSpan(builder: SpannableStringBuilder, startIndex: Int, endIndex: Int, span: Any) {
+        builder.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }

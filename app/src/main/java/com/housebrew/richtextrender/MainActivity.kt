@@ -10,6 +10,6 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        txtTest.setText(HtmlTagHandler.htmlToSpannable())
+        txtTest.text = HtmlTagHandler().htmlToSpannable()
     }
 }
